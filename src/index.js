@@ -209,7 +209,7 @@ client.on("interactionCreate", async (interaction) => {
         }
         gameRunning = true;
         await interaction.deferReply();
-        const messages = await fetchAllMessages(10, 200, 400);
+        const messages = await fetchAllMessages(10, 500, 1000);
         if (messages.length === 0) {
         return interaction.editReply("I couldn't find any valid messages.");
         }
