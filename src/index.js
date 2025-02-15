@@ -253,37 +253,34 @@ client.on("interactionCreate", async (interaction) => {
   });
 client.login(process.env.TOKEN);
 
-async function fetchAllMessages(minLength) {
+async function fetchAllMessages(minLength, lowerBound = 100, upperBound = 300) {
   const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
   let messages = [];
 
-  // Fetch the most recent message to use as a starting point.
   let lastMessage = await channel.messages
     .fetch({ limit: 1 })
     .then(messagePage => (messagePage.size ? messagePage.first() : null));
 
-  // Loop until we've gathered 200 messages or no more messages exist.
-  while (lastMessage && messages.length < 200) {
+  // Fetch messages until we have at least upperBound messages (or run out)
+  while (lastMessage && messages.length < upperBound) {
     const messagePage = await channel.messages.fetch({
       limit: 100,
       before: lastMessage.id,
     });
 
-    for (const msg of messagePage.values()) {
+    messagePage.forEach(msg => {
       if (
         !msg.author.bot &&
         msg.content.length > minLength &&
         !msg.mentions.users.some(user => user.bot)
       ) {
         messages.push(msg);
-        if (messages.length >= 200) break;
       }
-    }
+    });
 
-    // Update the message pointer to the last message in the page.
     lastMessage = messagePage.size > 0 ? messagePage.last() : null;
   }
 
-  // Return only the first 200 messages (if more were added, which shouldn't happen).
-  return messages.slice(0, 200);
+  // Return the messages in the range [lowerBound, upperBound)
+  return messages.slice(lowerBound, upperBound);
 }
