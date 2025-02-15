@@ -320,10 +320,10 @@ async function sendLeaderboard(
         if (entry.userId === interaction.user.id) {
           line = `**${line}**`;
         }
+        console.log(`Final line ${index}:`, JSON.stringify(line));
         description += line + "\n";
       });
     }
-
     const embed = new EmbedBuilder()
       .setColor(color)
       .setTitle(leaderboardTitle)
