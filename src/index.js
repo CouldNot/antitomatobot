@@ -260,14 +260,18 @@ client.on("interactionCreate", async (interaction) => {
         month: "long",
         day: "numeric",
       });
-      const formattedTime = chosenDate
-        .toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        })
-        .toLowerCase();
-      const combined = `${formattedDate} at ${formattedTime}`;
+
+      const userRef = doc(db, "users", interaction.user.id);
+
+      try {
+        const docSnap = await getDoc(userRef);
+        let currentWins = docSnap.exists() ? docSnap.data().gamewins : 0; // Default to 0 if no record
+
+        await setDoc(userRef, { points: currentWins + 1 }, { merge: true });
+      } catch (error) {
+        console.error("Error updating points:", error);
+      }
+
       return interaction.reply(
         `✅ Correct! The message was sent by ${chosenAuthor.displayName}.\n > "${chosenMessage.content}"\n > ${chosenAuthor.displayName}, ${formattedDate}`
       );
