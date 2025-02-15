@@ -7,6 +7,10 @@ const commands = [
     description: "Shows the points leaderboard.",
   },
   {
+    name: "gameleaderboard",
+    description: "Shows the game wins leaderboard.",
+  },
+  {
     name: "glaze",
     description: "Glazes a person of your choice.",
     options: [

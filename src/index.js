@@ -166,6 +166,16 @@ client.on("interactionCreate", async (interaction) => {
     );
   }
 
+  if (interaction.commandName === "gameleaderboard") {
+    sendLeaderboard(
+      interaction,
+      "gamewins",
+      "wins",
+      "🎲 Game Wins Leaderboard",
+      "#0000FF"
+    );
+  }
+
   if (interaction.commandName === "whosent") {
     if (gameRunning) {
       return interaction.reply("U can't start a new game dawg");
