@@ -205,7 +205,7 @@ client.on("interactionCreate", async (interaction) => {
 
     if (interaction.commandName === "whosent") {
         if (gameRunning) {
-          return interaction.reply("A game is already running.");
+          return interaction.reply("U can't start a new game dawg");
         }
         gameRunning = true;
         await interaction.deferReply();
@@ -254,33 +254,13 @@ client.on("interactionCreate", async (interaction) => {
 client.login(process.env.TOKEN);
 
 async function fetchAllMessages(minLength) {
-    const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
-    let messages = [];
-  
-    // Create message pointer
-    let message = await channel.messages
-      .fetch({ limit: 1 })
-      .then(messagePage => (messagePage.size === 1 ? messagePage.at(0) : null));
-  
-    while (message) {
-      await channel.messages
-        .fetch({ limit: 100, before: message.id })
-        .then(messagePage => {
-          messagePage.forEach(msg => {
-            // Only push if message is not from a bot, doesn't mention a bot, and is over 10 characters long
-            if (
-              !msg.author.bot &&
-              msg.content.length > minLength &&
-              !msg.mentions.users.some(user => user.bot)
-            ) {
-              messages.push(msg);
-            }
-          });
-  
-          // Update our message pointer to be the last message on the page of messages
-          message = messagePage.size > 0 ? messagePage.at(messagePage.size - 1) : null;
-        });
-    }
-  
-    return messages;
-  }
+  const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
+  const fetchedMessages = await channel.messages.fetch({ limit: 100 });
+  const filteredMessages = fetchedMessages.filter(
+    msg =>
+      !msg.author.bot &&
+      msg.content.length > minLength &&
+      !msg.mentions.users.some(user => user.bot)
+  );
+  return Array.from(filteredMessages.values());
+}
