@@ -117,9 +117,9 @@ client.on("interactionCreate", async (interaction) => {
         }
 
         if (isGlaze) {
-            prompt = `Write over-the-top praise for "${tag}" with emojis in a few sentences.`
+            prompt = `Write over-the-top praise for a person named "${tag}" with emojis in a few sentences.`
         } else {
-            prompt = `Write an over-the-top hate rant to "${tag}" in a few sentences with emojis.`
+            prompt = `Write an over-the-top hate rant for a person named "${tag}" in a few sentences with emojis.`
         }
 
         await interaction.deferReply();
