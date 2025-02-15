@@ -315,7 +315,8 @@ async function sendLeaderboard(
     } else {
       leaderboard.forEach((entry, index) => {
         const prefix = index === 0 ? "👑" : `${index + 1}.`;
-        let line = `${prefix} ${entry.displayName} - ${entry.value} ${unitLabel}`;
+        const cleanName = entry.displayName.trim();
+        let line = `${prefix} ${cleanName} - ${entry.value} ${unitLabel}`;
         if (entry.userId === interaction.user.id) {
           line = `**${line}**`;
         }
