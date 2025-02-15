@@ -219,9 +219,8 @@ client.on("interactionCreate", async (interaction) => {
 
       try {
         const docSnap = await getDoc(userRef);
-        // Ensure that gamewins is treated as a number
         let currentWins = docSnap.exists()
-          ? Number(docSnap.data().gamewins)
+          ? Number(docSnap.data().gamewins ?? 0)
           : 0;
 
         await setDoc(userRef, { gamewins: currentWins + 1 }, { merge: true });
