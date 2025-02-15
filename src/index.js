@@ -265,11 +265,14 @@ client.on("interactionCreate", async (interaction) => {
 
       try {
         const docSnap = await getDoc(userRef);
-        let currentWins = docSnap.exists() ? docSnap.data().gamewins : 0; // Default to 0 if no record
+        // Ensure that gamewins is treated as a number
+        let currentWins = docSnap.exists()
+          ? Number(docSnap.data().gamewins)
+          : 0;
 
         await setDoc(userRef, { gamewins: currentWins + 1 }, { merge: true });
       } catch (error) {
-        console.error("Error updating points:", error);
+        console.error("Error updating game wins:", error);
       }
 
       return interaction.reply(
