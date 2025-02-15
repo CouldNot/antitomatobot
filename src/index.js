@@ -318,7 +318,7 @@ async function sendLeaderboard(
         const cleanName = entry.displayName.trim();
         let line = `${prefix} ${cleanName} - ${entry.value} ${unitLabel}`;
         if (entry.userId === interaction.user.id) {
-          line = `**${line}**`;
+          line = `**${prefix} ${cleanName}** - **${entry.value} ${unitLabel}**`;
         }
         console.log(`Final line ${index}:`, JSON.stringify(line));
         description += line + "\n";
