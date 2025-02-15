@@ -209,7 +209,7 @@ client.on("interactionCreate", async (interaction) => {
         }
         gameRunning = true;
         await interaction.deferReply();
-        const messages = await fetchAllMessages(10);
+        const messages = await fetchAllMessages(10, 200, 400);
         if (messages.length === 0) {
         return interaction.editReply("I couldn't find any valid messages.");
         }
@@ -253,7 +253,7 @@ client.on("interactionCreate", async (interaction) => {
   });
 client.login(process.env.TOKEN);
 
-async function fetchAllMessages(minLength, lowerBound = 100, upperBound = 300) {
+async function fetchAllMessages(minLength, lowerBound, upperBound) {
   const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
   let messages = [];
 
