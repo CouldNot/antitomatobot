@@ -157,69 +157,13 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.commandName === "leaderboard") {
-    try {
-      const usersRef = collection(db, "users");
-      const snapshot = await getDocs(usersRef);
-
-      const leaderboard = [];
-      for (const docSnap of snapshot.docs) {
-        const data = docSnap.data();
-        if (data.points != null) {
-          let member = interaction.guild.members.cache.get(docSnap.id);
-          if (!member) {
-            try {
-              member = await interaction.guild.members.fetch(docSnap.id);
-            } catch (err) {
-              console.log(`Could not fetch member ${docSnap.id}`, err);
-            }
-          }
-          const displayName = member?.displayName || "Unknown";
-          leaderboard.push({
-            userId: docSnap.id,
-            displayName,
-            points: data.points,
-          });
-        }
-      }
-
-      // Sort by points (descending)
-      leaderboard.sort((a, b) => b.points - a.points);
-
-      // Build the message lines
-      let description = "";
-      if (leaderboard.length === 0) {
-        description = "⚠️ No users have points yet.";
-      } else {
-        leaderboard.forEach((entry, index) => {
-          // Use crown emoji for the highest user
-          const prefix = index === 0 ? "👑" : `${index + 1}.`;
-
-          // Create the line for the entry
-          let line = `${prefix} ${entry.displayName} - ${entry.points} points`;
-
-          // If the entry is the command sender, bold the entire line
-          if (entry.userId === interaction.user.id) {
-            line = `**${line}**`;
-          }
-
-          description += line + "\n";
-        });
-      }
-
-      // Create the embed with a red bar on the left
-      const embed = new EmbedBuilder()
-        .setColor("#FF0000")
-        .setTitle("🏆 Leaderboard")
-        .setDescription(description);
-
-      // Send the embed
-      await interaction.reply({ embeds: [embed] });
-    } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-      interaction.reply(
-        "❌ Failed to fetch the leaderboard. Please try again."
-      );
-    }
+    sendLeaderboard(
+      interaction,
+      "points",
+      "points",
+      "🏆 Points Leaderboard",
+      "#FF0000"
+    );
   }
 
   if (interaction.commandName === "whosent") {
@@ -320,4 +264,64 @@ async function fetchAllMessages(minLength, lowerBound, upperBound) {
 
   // Return the messages in the range [lowerBound, upperBound)
   return messages.slice(lowerBound, upperBound);
+}
+
+async function sendLeaderboard(
+  interaction,
+  field,
+  unitLabel,
+  leaderboardTitle,
+  color
+) {
+  try {
+    const usersRef = collection(db, "users");
+    const snapshot = await getDocs(usersRef);
+    const leaderboard = [];
+
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data();
+      if (data[field] != null) {
+        let member = interaction.guild.members.cache.get(docSnap.id);
+        if (!member) {
+          try {
+            member = await interaction.guild.members.fetch(docSnap.id);
+          } catch (err) {
+            console.log(`Could not fetch member ${docSnap.id}`, err);
+          }
+        }
+        const displayName = member?.displayName || "Unknown";
+        leaderboard.push({
+          userId: docSnap.id,
+          displayName,
+          value: data[field],
+        });
+      }
+    }
+
+    leaderboard.sort((a, b) => b.value - a.value);
+
+    let description = "";
+    if (leaderboard.length === 0) {
+      description = `⚠️ No users have ${unitLabel} yet.`;
+    } else {
+      leaderboard.forEach((entry, index) => {
+        const prefix = index === 0 ? "👑" : `${index + 1}.`;
+        let line = `${prefix} ${entry.displayName} - ${entry.value} ${unitLabel}`;
+        if (entry.userId === interaction.user.id) {
+          line = `**${line}**`;
+        }
+        description += line + "\n";
+      });
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor(color)
+      .setTitle(leaderboardTitle)
+      .setDescription(description);
+
+    await interaction.reply({ embeds: [embed] });
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    interaction.reply("❌ Failed to fetch the leaderboard. Please try again.");
+  }
 }
