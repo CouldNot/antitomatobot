@@ -245,7 +245,7 @@ client.on("interactionCreate", async (interaction) => {
                 hour12: true
             }).toLowerCase();
             const combined = `${formattedDate} at ${formattedTime}`;
-            return interaction.reply(`✅ Correct! The message was sent by ${chosenAuthor} on ${combined}.\n > "${chosenMessage.content}"\n > ${chosenAuthor.displayName}, ${formattedDate}`)
+            return interaction.reply(`✅ Correct! The message was sent by ${chosenAuthor.displayName}.\n > "${chosenMessage.content}"\n > ${chosenAuthor.displayName}, ${formattedDate}`)
         } else {
             return interaction.reply("❌ Lol try again.")
         }
@@ -255,12 +255,35 @@ client.login(process.env.TOKEN);
 
 async function fetchAllMessages(minLength) {
   const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
-  const fetchedMessages = await channel.messages.fetch({ limit: 100 });
-  const filteredMessages = fetchedMessages.filter(
-    msg =>
-      !msg.author.bot &&
-      msg.content.length > minLength &&
-      !msg.mentions.users.some(user => user.bot)
-  );
-  return Array.from(filteredMessages.values());
+  let messages = [];
+
+  // Fetch the most recent message to use as a starting point.
+  let lastMessage = await channel.messages
+    .fetch({ limit: 1 })
+    .then(messagePage => (messagePage.size ? messagePage.first() : null));
+
+  // Loop until we've gathered 200 messages or no more messages exist.
+  while (lastMessage && messages.length < 200) {
+    const messagePage = await channel.messages.fetch({
+      limit: 100,
+      before: lastMessage.id,
+    });
+
+    for (const msg of messagePage.values()) {
+      if (
+        !msg.author.bot &&
+        msg.content.length > minLength &&
+        !msg.mentions.users.some(user => user.bot)
+      ) {
+        messages.push(msg);
+        if (messages.length >= 200) break;
+      }
+    }
+
+    // Update the message pointer to the last message in the page.
+    lastMessage = messagePage.size > 0 ? messagePage.last() : null;
+  }
+
+  // Return only the first 200 messages (if more were added, which shouldn't happen).
+  return messages.slice(0, 200);
 }
