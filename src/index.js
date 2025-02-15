@@ -247,7 +247,8 @@ client.on("interactionCreate", async (interaction) => {
             const combined = `${formattedDate} at ${formattedTime}`;
             return interaction.reply(`✅ Correct! The message was sent by ${chosenAuthor.displayName}.\n > "${chosenMessage.content}"\n > ${chosenAuthor.displayName}, ${formattedDate}`)
         } else {
-            return interaction.reply("❌ Lol try again.")
+            let user = interaction.guild.members.cache.get(interaction.options.get('user')?.value);
+            return interaction.reply(`❌ Lol try again, it's not ${user.displayName}.`)
         }
     }
   });
