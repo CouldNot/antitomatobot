@@ -316,11 +316,11 @@ async function sendLeaderboard(
       leaderboard.forEach((entry, index) => {
         const prefix = index === 0 ? "👑" : `${index + 1}.`;
         const cleanName = entry.displayName.trim();
-        let line = `${prefix} ${cleanName} - **${entry.value}** ${unitLabel}`;
-        // if (entry.userId === interaction.user.id) {
-        //   line = `**${prefix} ${cleanName}** - **${entry.value}** ${unitLabel}`;
-        // }
-        description += `**${line}**` + "\n";
+        let line = `${prefix} ${cleanName} • **${entry.value}** ${unitLabel}`;
+        if (entry.userId === interaction.user.id) {
+          line = `**${prefix} ${cleanName} • ${entry.value} ${unitLabel}**`;
+        }
+        description += line + "\n";
       });
     }
     const embed = new EmbedBuilder()
