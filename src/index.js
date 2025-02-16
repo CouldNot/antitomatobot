@@ -204,7 +204,7 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.commandName === "guesswhosent") {
     if (!gameRunning) {
       return interaction.reply(
-        "There's no game happening. What's that... what's a game... 💔💔"
+        "Someone got it already 😱 (or there's no game happening)"
       );
     }
     if (interaction.options.get("user")?.value === chosenAuthor.id) {
@@ -318,7 +318,7 @@ async function sendLeaderboard(
         const cleanName = entry.displayName.trim();
         let line = `${prefix} ${cleanName}  -  **${entry.value}** ${unitLabel}`;
         if (entry.userId === interaction.user.id) {
-          line = `${prefix} ${cleanName}  -  **${entry.value}** ${unitLabel}`;
+          line = `${prefix} ➡️ ${cleanName}  -  **${entry.value}** ${unitLabel}`;
         }
         description += line + "\n";
       });
