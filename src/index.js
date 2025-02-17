@@ -72,7 +72,9 @@ client.on("messageCreate", async (msg) => {
 
       try {
         const docSnap = await getDoc(userRef);
-        let currentPoints = docSnap.exists() ? docSnap.data().points : 0; // Default to 0 if no record
+        let currentPoints = docSnap.exists()
+          ? Number(docSnap.data().points ?? 0)
+          : 0;
 
         await setDoc(
           userRef,
