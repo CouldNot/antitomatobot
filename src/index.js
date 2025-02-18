@@ -158,6 +158,10 @@ client.on("messageCreate", async (msg) => {
 
             msg.channel.send({ embeds: [embed] });
 
+            await givePoints(db, eliminatedwaplayers[0], 10);
+            await givePoints(db, eliminatedwaplayers[1], 5);
+            await givePoints(db, eliminatedwaplayers[2], 3);
+
             // Reset the game
             waRoundStarted = false;
             wordAssassinRunning = false;
@@ -377,7 +381,7 @@ client.on("interactionCreate", async (interaction) => {
       watargets = {};
       alivewaplayers = [];
       const description =
-        "Welcome to Word Assassin!\n\nIf you haven't already, read the rules below. By default, you are not playing, so **use /joinwa to be included.** After everyone has joined, someone will manually start it.\n\nAfter the game has started, your word will be sent to you through DM, and using this command (**/wordassassin**) will pull up the game status and who is remaining. Place top 3 for a reward!";
+        "Welcome to Word Assassin!\n\nIf you haven't already, read the rules below. By default, you are not playing, so **use /joinwa to be included.** After everyone has joined, someone will manually start it.\n\nAfter the game has started, your word will be sent to you through DM. Place top 3 for a reward!";
       const embed = new EmbedBuilder()
         .setColor("008000")
         .setTitle("🔪 Word Assassin")
