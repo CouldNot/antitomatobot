@@ -197,12 +197,6 @@ client.on("messageCreate", async (msg) => {
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
-  if (interaction.guildId != process.env.GUILD_ID) {
-    interaction.reply(
-      "A new feature is being added right now so please chill 😭✌️"
-    );
-    return;
-  }
 
   const { cooldowns } = interaction.client;
   let command = interaction.commandName;
