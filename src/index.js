@@ -427,6 +427,11 @@ client.on("interactionCreate", async (interaction) => {
       return;
     }
 
+    if (interaction.user.id != "824653557894479972") {
+      interaction.reply("YOU CANNOT START THE GAME!!!!!!!!!!");
+      return;
+    }
+
     if (waRoundStarted) {
       interaction.reply("Round's already started!");
       return;
