@@ -3,6 +3,18 @@ import { ApplicationCommandOptionType, REST, Routes } from "discord.js";
 
 const commands = [
   {
+    name: "startwa",
+    description: "Starts the word assassin game.",
+  },
+  {
+    name: "wordassassin",
+    description: "Shows the current word assassin game (or creates one).",
+  },
+  {
+    name: "joinwa",
+    description: "Joins a running word assassin game.",
+  },
+  {
     name: "leaderboard",
     description: "Shows the points leaderboard.",
   },
