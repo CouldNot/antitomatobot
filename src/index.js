@@ -42,8 +42,51 @@ const client = new Client({
 });
 
 client.cooldowns = new Collection();
-var waplayers = [];
-var alivewaplayers = [];
+var waplayers = [
+  "824653557894479972",
+  "687670751893258252",
+  "547840354796175371",
+  "592084552323825683",
+  "925275963749724191",
+  "1018025282457841704",
+  "775091235764568084",
+  "960320792334331915",
+  "831637612166905867",
+];
+var alivewaplayers = [
+  "824653557894479972",
+  "687670751893258252",
+  "547840354796175371",
+  "592084552323825683",
+  "925275963749724191",
+  "1018025282457841704",
+  "775091235764568084",
+  "960320792334331915",
+  "831637612166905867",
+];
+// var waplayers = [
+//   "dale",
+//   "eli",
+//   "rocky",
+//   "izz",
+//   "sean",
+//   "prneeta",
+//   "elgina",
+//   "adam",
+//   "steve",
+// ];
+// var alivewaplayers = [
+//   "dale",
+//   "eli",
+//   "rocky",
+//   "izz",
+//   "sean",
+//   "prneeta",
+//   "elgina",
+//   "adam",
+//   "steve",
+// ];
+
 var watargets = {};
 var eliminatedwaplayers = [];
 
@@ -377,9 +420,9 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.reply({ embeds: [embed] });
     } else {
       wordAssassinRunning = true;
-      waplayers = [];
+      // waplayers = [];
       watargets = {};
-      alivewaplayers = [];
+      // alivewaplayers = [];
       const description =
         "Welcome to Word Assassin!\n\nIf you haven't already, read the rules below. By default, you are not playing, so **use /joinwa to be included.** After everyone has joined, someone will manually start it.\n\nAfter the game has started, your word will be sent to you through DM. Place top 3 for a reward!";
       const embed = new EmbedBuilder()
