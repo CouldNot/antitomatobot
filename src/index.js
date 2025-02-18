@@ -42,6 +42,7 @@ const client = new Client({
 });
 
 client.cooldowns = new Collection();
+
 var waplayers = [
   "824653557894479972",
   "687670751893258252",
@@ -228,7 +229,9 @@ client.on("messageCreate", async (msg) => {
               .setTitle("🔪 Word Assassin KILL!!!")
               .setDescription(
                 `You killed ${msg.author} 💀\n\n` +
-                  `🎯 Your new target: ${client.users.cache.get(newTarget)}\n` +
+                  `🎯 Your new target: ${
+                    client.users.cache.get(newTarget).displayName
+                  }\n` +
                   `🗣️ Your new word: **${watargets[assassin].word}**\n\n`
               );
 
@@ -403,7 +406,7 @@ client.on("interactionCreate", async (interaction) => {
         } else {
           for (const i in waplayers) {
             const id = waplayers[i];
-            const user = interaction.guild.members.cache.get(id);
+            const user = await interaction.guild.members.fetch(id);
             if (alivewaplayers.includes(id)) {
               description += `🟢 ${user.displayName}`;
             } else {
@@ -507,7 +510,7 @@ client.on("interactionCreate", async (interaction) => {
             .setColor("#FF0000")
             .setTitle("🔪 Word Assassin assignment")
             .setDescription(
-              `🎯 Your target: ${targetUser}\n` +
+              `🎯 Your target: ${targetUser.displayName}\n` +
                 `🗣️ Your target's forbidden word: **${killWord}**\n\n` +
                 `💀 Trick them into saying this word to eliminate them`
             );
@@ -649,6 +652,7 @@ function joinWaGame(userId) {
   }
   waplayers.push(userId);
   alivewaplayers.push(userId);
+  console.log(waplayers);
   return true;
 }
 
