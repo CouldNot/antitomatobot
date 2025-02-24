@@ -14,6 +14,7 @@ import {
 import { OpenAI } from "openai";
 import "dotenv/config";
 import { assassinlist } from "../assassinlist.js";
+import cron from "node-cron";
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -110,6 +111,29 @@ let chosenDate = "";
 
 client.on("ready", (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
+
+  const startDate = new Date("2025-02-23");
+
+  cron.schedule("0 22 * * *", async () => {
+    try {
+      const userId = process.env.PRNEETA_CLIENT_ID;
+      const user = await client.users.fetch(userId);
+
+      if (!user) {
+        console.error("Could not find the user to dm");
+        return;
+      }
+
+      const today = new Date();
+      const diffTime = Math.abs(today - startDate);
+      const dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+
+      await user.send(`Day ${dayCount} of reminding you to journal!!`);
+      console.log(`DM sent successfully.`);
+    } catch (error) {
+      console.error("failed to send DM:", error);
+    }
+  });
 });
 
 client.on("messageCreate", async (msg) => {
