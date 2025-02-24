@@ -128,7 +128,7 @@ client.on("ready", (c) => {
       const diffTime = Math.abs(today - startDate);
       const dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
 
-      await user.send(`Day ${dayCount} of reminding you to journal!!`);
+      await user.send(`Day ${dayCount} of reminding you to journal 🔥`);
       console.log(`DM sent successfully.`);
     } catch (error) {
       console.error("failed to send DM:", error);
