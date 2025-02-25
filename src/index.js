@@ -45,26 +45,26 @@ const client = new Client({
 client.cooldowns = new Collection();
 
 var waplayers = [
-  "824653557894479972",
-  "687670751893258252",
-  "547840354796175371",
-  "592084552323825683",
-  "925275963749724191",
-  "1018025282457841704",
-  "775091235764568084",
-  "960320792334331915",
-  "831637612166905867",
+  // "824653557894479972",
+  // "687670751893258252",
+  // "547840354796175371",
+  // "592084552323825683",
+  // "925275963749724191",
+  // "1018025282457841704",
+  // "775091235764568084",
+  // "960320792334331915",
+  // "831637612166905867",
 ];
 var alivewaplayers = [
-  "824653557894479972",
-  "687670751893258252",
-  "547840354796175371",
-  "592084552323825683",
-  "925275963749724191",
-  "1018025282457841704",
-  "775091235764568084",
-  "960320792334331915",
-  "831637612166905867",
+  // "824653557894479972",
+  // "687670751893258252",
+  // "547840354796175371",
+  // "592084552323825683",
+  // "925275963749724191",
+  // "1018025282457841704",
+  // "775091235764568084",
+  // "960320792334331915",
+  // "831637612166905867",
 ];
 // var waplayers = [
 //   "dale",
@@ -109,31 +109,69 @@ let chosenMessage = "";
 let chosenAuthor = "";
 let chosenDate = "";
 
-client.on("ready", (c) => {
+client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
+
+  try {
+    // Fetch the channel
+    const channel = await client.channels.fetch(1159363549517320252);
+
+    if (!channel || !channel.isTextBased()) {
+      console.error(
+        "❌ Could not find the text channel or it's not text-based."
+      );
+      return;
+    }
+
+    // Send the message
+    const rocky = await client.users.fetch(547840354796175371);
+    const eli = await client.users.fetch(687670751893258252);
+    await channel.send(
+      `The first word assassin game has concluded (rather prematurely). ${rocky} killed 2 people and ${eli} killed 1 person (Izz), although the second one wasn't announced. Congrats i guess. Your points have been updated.`
+    );
+    givePoints(db, rocky, 2);
+    givePoints(db, eli, 2);
+
+    console.log(`✅ Message sent to #${channel.name}`);
+  } catch (error) {
+    console.error("❌ Failed to send the message:", error);
+  }
 
   const startDate = new Date("2025-02-23");
 
-  cron.schedule("0 22 * * *", async () => {
-    try {
-      const userId = process.env.PRNEETA_CLIENT_ID;
-      const user = await client.users.fetch(userId);
+  cron.schedule(
+    "0 22 * * *", // 10 PM
+    async () => {
+      try {
+        const userId = process.env.PRNEETA_CLIENT_ID;
+        const user = await client.users.fetch(userId);
 
-      if (!user) {
-        console.error("Could not find the user to dm");
-        return;
+        if (!user) {
+          console.error("Could not find the user to DM");
+          return;
+        }
+
+        // Get the current time in PST
+        const today = moment().tz("America/Los_Angeles").toDate();
+        const diffTime = Math.abs(today - startDate);
+        const dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+
+        await user.send(`Day ${dayCount} of reminding you to journal 🔥`);
+        console.log(
+          `✅ DM sent successfully at ${today.toLocaleString("en-US", {
+            timeZone: "America/Los_Angeles",
+          })}.`
+        );
+      } catch (error) {
+        console.error("❌ Failed to send DM:", error);
       }
-
-      const today = new Date();
-      const diffTime = Math.abs(today - startDate);
-      const dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
-
-      await user.send(`Day ${dayCount} of reminding you to journal 🔥`);
-      console.log(`DM sent successfully.`);
-    } catch (error) {
-      console.error("failed to send DM:", error);
+    },
+    {
+      timezone: "America/Los_Angeles", // Set timezone to PST
     }
-  });
+  );
+
+  console.log("Daily DM schedule set for 10 PM PST.");
 });
 
 client.on("messageCreate", async (msg) => {
