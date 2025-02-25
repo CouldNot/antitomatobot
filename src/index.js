@@ -126,11 +126,8 @@ client.on("ready", async (c) => {
     // Send the message
     const rocky = await client.users.fetch("547840354796175371");
     const eli = await client.users.fetch("687670751893258252");
-    await channel.send(
-      `The first word assassin game has concluded (rather prematurely). ${rocky} killed 2 people and ${eli} killed 1 person (Izz), although the second one wasn't announced. Congrats i guess. Your points have been updated.`
-    );
-    givePoints(db, rocky, 2);
-    givePoints(db, eli, 2);
+    givePoints(db, "547840354796175371", 2);
+    givePoints(db, "687670751893258252", 2);
 
     console.log(`✅ Message sent to #${channel.name}`);
   } catch (error) {
