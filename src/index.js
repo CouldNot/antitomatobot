@@ -111,29 +111,6 @@ let chosenDate = "";
 
 client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
-
-  try {
-    // Fetch the channel
-    const channel = await client.channels.fetch("1159363549517320252");
-
-    if (!channel || !channel.isTextBased()) {
-      console.error(
-        "❌ Could not find the text channel or it's not text-based."
-      );
-      return;
-    }
-
-    // Send the message
-    const rocky = await client.users.fetch("547840354796175371");
-    const eli = await client.users.fetch("687670751893258252");
-    givePoints(db, "547840354796175371", 2);
-    givePoints(db, "687670751893258252", 2);
-
-    console.log(`✅ Message sent to #${channel.name}`);
-  } catch (error) {
-    console.error("❌ Failed to send the message:", error);
-  }
-
   const startDate = new Date("2025-02-23");
 
   cron.schedule(
