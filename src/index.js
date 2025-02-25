@@ -124,8 +124,8 @@ client.on("ready", async (c) => {
     }
 
     // Send the message
-    const rocky = await client.users.fetch(547840354796175371);
-    const eli = await client.users.fetch(687670751893258252);
+    const rocky = await client.users.fetch("547840354796175371");
+    const eli = await client.users.fetch("687670751893258252");
     await channel.send(
       `The first word assassin game has concluded (rather prematurely). ${rocky} killed 2 people and ${eli} killed 1 person (Izz), although the second one wasn't announced. Congrats i guess. Your points have been updated.`
     );
