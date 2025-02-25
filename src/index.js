@@ -114,7 +114,7 @@ client.on("ready", async (c) => {
 
   try {
     // Fetch the channel
-    const channel = await client.channels.fetch(1159363549517320252);
+    const channel = await client.channels.fetch("1159363549517320252");
 
     if (!channel || !channel.isTextBased()) {
       console.error(
