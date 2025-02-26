@@ -15,6 +15,7 @@ import { OpenAI } from "openai";
 import "dotenv/config";
 import { assassinlist } from "../assassinlist.js";
 import cron from "node-cron";
+import moment from "moment-timezone";
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -114,14 +115,14 @@ client.on("ready", async (c) => {
   const startDate = new Date("2025-02-23");
 
   cron.schedule(
-    "0 22 * * *", // 10 PM
+    "15 22 * * *", // 10 PM
     async () => {
       try {
         const userId = process.env.PRNEETA_CLIENT_ID;
         const user = await client.users.fetch(userId);
 
         if (!user) {
-          console.error("Could not find the user to DM");
+          console.error("Could not find the user to dm");
           return;
         }
 
@@ -132,15 +133,16 @@ client.on("ready", async (c) => {
 
         await user.send(`Day ${dayCount} of reminding you to journal 🔥`);
         console.log(
-          `✅ DM sent successfully at ${today.toLocaleString("en-US", {
+          `dm sent successfully at ${today.toLocaleString("en-US", {
             timeZone: "America/Los_Angeles",
           })}.`
         );
       } catch (error) {
-        console.error("❌ Failed to send DM:", error);
+        console.error("failed to send dm:", error);
       }
     },
     {
+      scheduled: true,
       timezone: "America/Los_Angeles", // Set timezone to PST
     }
   );
