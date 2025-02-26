@@ -115,7 +115,7 @@ client.on("ready", async (c) => {
   const startDate = new Date("2025-02-23");
 
   cron.schedule(
-    "15 22 * * *", // 10 PM
+    "17 22 * * *", // 10 PM
     async () => {
       try {
         const userId = process.env.PRNEETA_CLIENT_ID;
