@@ -175,6 +175,29 @@ client.on("messageCreate", async (msg) => {
     }
   }
 
+  if (msg.author.id == IZZ_CLIENT_ID) {
+    const match = msg.content.match(/^\+(\d+)$/);
+
+    if (!match) return;
+
+    const repliedUser = msg.mentions.repliedUser;
+    if (!repliedUser) {
+      return msg.reply("Reply to a user to stroke.");
+    }
+    if (repliedUser.id === process.env.CLIENT_ID) return;
+
+    const number = parseInt(match[1], 10);
+
+    try {
+      await giveStrokes(db, repliedUser.id, number);
+      msg.reply(
+        `💔 ${repliedUser}'s message has been stroked to ${number} times (ts pmo) \n> *Use /strokes to track.*`
+      );
+    } catch (error) {
+      msg.reply("Failed to update. Please try again.");
+    }
+  }
+
   if (waRoundStarted) {
     let playerId = msg.author.id; // The person who sent the message
 
@@ -365,6 +388,16 @@ client.on("interactionCreate", async (interaction) => {
       "wins",
       "🎲 Game Wins Leaderboard",
       "#0000FF"
+    );
+  }
+
+  if (interaction.commandName === "strokes") {
+    sendLeaderboard(
+      interaction,
+      "strokes",
+      "strokes",
+      "💔 Strokes Leaderboard",
+      "#FFA500"
     );
   }
 
@@ -680,6 +713,25 @@ async function givePoints(db, userId, pointsToAdd) {
     // No return needed if you don't need to use newTotal outside this function
   } catch (error) {
     console.error("Error updating points:", error);
+    throw error; // so the caller can still handle it
+  }
+}
+
+async function giveStrokes(db, userId, pointsToAdd) {
+  try {
+    const userRef = doc(db, "users", userId);
+    const docSnap = await getDoc(userRef);
+
+    let currentPoints = docSnap.exists()
+      ? Number(docSnap.data().strokes ?? 0)
+      : 0;
+
+    const newTotal = currentPoints + pointsToAdd;
+    await setDoc(userRef, { strokes: newTotal }, { merge: true });
+
+    // No return needed if you don't need to use newTotal outside this function
+  } catch (error) {
+    console.error("Error updating strokes:", error);
     throw error; // so the caller can still handle it
   }
 }

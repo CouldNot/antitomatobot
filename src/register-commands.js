@@ -19,6 +19,10 @@ const commands = [
     description: "Shows the points leaderboard.",
   },
   {
+    name: "strokes",
+    description: "Shows the strokes leaderboard.",
+  },
+  {
     name: "gameleaderboard",
     description: "Shows the game wins leaderboard.",
   },
