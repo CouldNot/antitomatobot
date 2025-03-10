@@ -175,7 +175,7 @@ client.on("messageCreate", async (msg) => {
     }
   }
 
-  if (msg.author.id == IZZ_CLIENT_ID) {
+  if (msg.author.id === process.env.IZZ_CLIENT_ID) {
     const match = msg.content.match(/^\+(\d+)$/);
 
     if (!match) return;
