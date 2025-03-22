@@ -10,7 +10,7 @@ import { OpenAI } from "openai";
 import "dotenv/config";
 import cron from "node-cron";
 import moment from "moment-timezone";
-import db from "./services/firebase";
+import db from "./services/firebase.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_PROJECT_KEY,
