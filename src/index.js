@@ -621,12 +621,6 @@ client.on("interactionCreate", async (interaction) => {
     }
   });
 
-  if (!lastUserMessage) {
-    return interaction.editReply(
-      "I couldn't find any previous messages from you."
-    );
-  }
-
   // Collect messages after the last one sent by the user
   const messagesToSummarize = [];
   messages.forEach((msg) => {
@@ -640,7 +634,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation with a casual tone, reflecting the language used: \n\n ${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation, reflecting the choice and style of language used: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
