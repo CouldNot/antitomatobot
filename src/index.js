@@ -612,35 +612,17 @@ client.on("interactionCreate", async (interaction) => {
   await interaction.deferReply();
 
   const messages = await interaction.channel.messages.fetch({ limit: 100 });
-
-  // Find the last message from the user
-  let lastUserMessage;
-  messages.forEach((msg) => {
-    if (msg.author.id === interaction.user.id && !lastUserMessage) {
-      lastUserMessage = msg;
-    }
-  });
-
-  if (!lastUserMessage) {
-    return interaction.editReply(
-      "I couldn't find any previous messages from you."
-    );
-  }
-
-  // Collect messages after the last one sent by the user
   const messagesToSummarize = [];
   messages.forEach((msg) => {
-    if (msg.createdTimestamp > lastUserMessage.createdTimestamp) {
-      messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
-    }
+    messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
   });
 
   if (messagesToSummarize.length === 0) {
-    return interaction.editReply("Nothing happened bozo");
+    return interaction.editReply("An error occurred...");
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation casually, reflecting the choice and style of language used. Note that the messages towards the left (start) are newest, and that messages towards the end of the following text are oldest: \n\n ${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation casually. Note that the messages towards the left (start) are newest, and that messages towards the end of the following text are oldest: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
@@ -662,7 +644,7 @@ client.on("interactionCreate", async (interaction) => {
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
     await interaction.editReply(
-      "An error occurred while generating the summary (ts pmo)"
+      "An error occurred while generating the summary >:("
     );
   }
 });
