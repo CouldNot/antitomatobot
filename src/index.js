@@ -40,6 +40,11 @@ let chosenMessage = "";
 let chosenAuthor = "";
 let chosenDate = "";
 
+const commandHandlers = {
+  glaze,
+  diss,
+};
+
 client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
   const startDate = new Date("2025-02-23");
@@ -157,41 +162,8 @@ client.on("interactionCreate", async (interaction) => {
   timestamps.set(interaction.user.id, now);
   setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-  if (
-    interaction.commandName === "glaze" ||
-    interaction.commandName === "diss"
-  ) {
-    var prompt = "";
-    const isGlaze = interaction.commandName === "glaze";
-    const id = interaction.options.get("user")?.value;
-    const tag = (await client.users.fetch(id)).globalName;
-
-    if (id === process.env.CLIENT_ID) {
-      if (isGlaze) return interaction.reply("I am unglazable.");
-      else return interaction.reply("I am undissable.");
-    }
-
-    if (isGlaze) {
-      prompt = `Write over-the-top praise for a person named "${tag}" with emojis in a few sentences.`;
-    } else {
-      prompt = `Write an over-the-top hate rant for a person named "${tag}" in a few sentences with emojis.`;
-    }
-
-    await interaction.deferReply();
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      store: true,
-    });
-
-    await interaction.editReply(completion.choices[0].message.content);
+  if (commandHandlers[command]) {
+    return commandHandlers[command](interaction, client);
   }
 
   if (interaction.commandName === "leaderboard") {
