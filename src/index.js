@@ -613,8 +613,13 @@ client.on("interactionCreate", async (interaction) => {
 
   const messages = await interaction.channel.messages.fetch({ limit: 100 });
   const messagesToSummarize = [];
+
   messages.forEach((msg) => {
-    messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
+    if (!msg.author.bot && msg.content.length > 0) {
+      messagesToSummarize.push(
+        `${msg.member?.displayName || msg.author.username}: ${msg.content}`
+      );
+    }
   });
 
   if (messagesToSummarize.length === 0) {
