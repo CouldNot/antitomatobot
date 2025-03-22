@@ -640,7 +640,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation with a sarcastic, casual tone: \n\n ${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation with a casual tone, reflecting the language used: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
