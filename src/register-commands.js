@@ -3,18 +3,6 @@ import { ApplicationCommandOptionType, REST, Routes } from "discord.js";
 
 const commands = [
   {
-    name: "startwa",
-    description: "Starts the word assassin game.",
-  },
-  {
-    name: "wordassassin",
-    description: "Shows the current word assassin game (or creates one).",
-  },
-  {
-    name: "joinwa",
-    description: "Joins a running word assassin game.",
-  },
-  {
     name: "leaderboard",
     description: "Shows the points leaderboard.",
   },
@@ -68,8 +56,8 @@ const commands = [
   },
   {
     name: "recap",
-    description: "Recaps everything that happened since your last message."
-  }
+    description: "Recaps what happened recently in the channel.",
+  },
 ];
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);

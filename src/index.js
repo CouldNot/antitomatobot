@@ -7,13 +7,9 @@ import {
   EmbedBuilder,
   Collection,
   MessageFlags,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
 } from "discord.js";
 import { OpenAI } from "openai";
 import "dotenv/config";
-import { assassinlist } from "../assassinlist.js";
 import cron from "node-cron";
 import moment from "moment-timezone";
 
@@ -45,54 +41,6 @@ const client = new Client({
 
 client.cooldowns = new Collection();
 
-var waplayers = [
-  // "824653557894479972",
-  // "687670751893258252",
-  // "547840354796175371",
-  // "592084552323825683",
-  // "925275963749724191",
-  // "1018025282457841704",
-  // "775091235764568084",
-  // "960320792334331915",
-  // "831637612166905867",
-];
-var alivewaplayers = [
-  // "824653557894479972",
-  // "687670751893258252",
-  // "547840354796175371",
-  // "592084552323825683",
-  // "925275963749724191",
-  // "1018025282457841704",
-  // "775091235764568084",
-  // "960320792334331915",
-  // "831637612166905867",
-];
-// var waplayers = [
-//   "dale",
-//   "eli",
-//   "rocky",
-//   "izz",
-//   "sean",
-//   "prneeta",
-//   "elgina",
-//   "adam",
-//   "steve",
-// ];
-// var alivewaplayers = [
-//   "dale",
-//   "eli",
-//   "rocky",
-//   "izz",
-//   "sean",
-//   "prneeta",
-//   "elgina",
-//   "adam",
-//   "steve",
-// ];
-
-var watargets = {};
-var eliminatedwaplayers = [];
-
 const commandCooldowns = {
   leaderboard: 10,
   whosent: 15,
@@ -100,12 +48,11 @@ const commandCooldowns = {
   glaze: 30,
   diss: 30,
   gameleaderboard: 10,
-  wordassassin: 3,
+  recap: 20,
 };
 
+// who sent
 let gameRunning = false;
-let wordAssassinRunning = false;
-let waRoundStarted = false;
 let chosenMessage = "";
 let chosenAuthor = "";
 let chosenDate = "";
@@ -195,113 +142,6 @@ client.on("messageCreate", async (msg) => {
       );
     } catch (error) {
       msg.reply("Failed to update. Please try again.");
-    }
-  }
-
-  if (waRoundStarted) {
-    let playerId = msg.author.id; // The person who sent the message
-
-    // Check if the player is a target in the game
-    if (watargets[playerId]) {
-      let assassin = null;
-      let killWord = null;
-
-      for (let player in watargets) {
-        if (watargets[player].target === playerId) {
-          assassin = player;
-          killWord = watargets[player].word;
-          break;
-        }
-      }
-      let messageText = msg.content.toLowerCase(); // raw msg in lowercase
-
-      // typos not allowed but no spaces surrounding the word still count
-      let wordRegex = new RegExp(`\\b${killWord}\\b|${killWord}`, "i");
-      if (wordRegex.test(messageText)) {
-        let assassin = null;
-
-        // find the assassin (who was assigned to kill this player)
-        for (let player in watargets) {
-          if (watargets[player].target === playerId) {
-            assassin = player;
-            break;
-          }
-        }
-
-        if (assassin) {
-          let newTarget = watargets[playerId].target; // next target
-
-          eliminatedwaplayers.unshift(playerId);
-          eliminatePlayer(watargets, playerId);
-
-          // Remove the dead player from alivewaplayers
-          alivewaplayers = alivewaplayers.filter((id) => id !== playerId);
-
-          // Check if only one player remains → Declare winner
-          if (alivewaplayers.length === 1) {
-            let winnerId = alivewaplayers[0];
-            let winnerUser = client.users.cache.get(winnerId);
-
-            eliminatedwaplayers.unshift(winnerId);
-
-            let firstPlace =
-              client.users.cache.get(eliminatedwaplayers[0]) || "Unknown";
-            let secondPlace =
-              client.users.cache.get(eliminatedwaplayers[1]) || "N/A";
-            let thirdPlace =
-              client.users.cache.get(eliminatedwaplayers[2]) || "N/A";
-
-            const embed = new EmbedBuilder()
-              .setColor("#FFD700") // Gold color for the victory theme
-              .setTitle("🏆 Word Assassin winners")
-              .setDescription(
-                `With the word **"${killWord}"**, the assassin **${winnerUser}** has brutally KILLED ${msg.author} and won Word Assassin, what a sigma. \n\n` +
-                  `🥇 **1st Place:** ${firstPlace} (+10 points)\n` +
-                  `🥈 **2nd Place:** ${secondPlace} (+5 points)\n` +
-                  `🥉 **3rd Place:** ${thirdPlace} (+3 points)\n`
-              );
-
-            msg.channel.send({ embeds: [embed] });
-
-            await givePoints(db, eliminatedwaplayers[0], 10);
-            await givePoints(db, eliminatedwaplayers[1], 5);
-            await givePoints(db, eliminatedwaplayers[2], 3);
-
-            // Reset the game
-            waRoundStarted = false;
-            wordAssassinRunning = false;
-            watargets = {};
-            alivewaplayers = [];
-            waplayers = [];
-            return;
-          }
-
-          // Announce the elimination in the channel
-          msg.channel.send(
-            `💀 **${msg.author}** has died of a mysterious cause for saying **${killWord}** (those who know). To a certain person, check your DMs...`
-          );
-
-          // DM the assassin their new target and word
-          try {
-            const assassinUser = await client.users.fetch(assassin);
-
-            const embed = new EmbedBuilder()
-              .setColor("#BF40BF")
-              .setTitle("🔪 Word Assassin KILL!!!")
-              .setDescription(
-                `You killed ${msg.author} 💀\n\n` +
-                  `🎯 Your new target: ${
-                    client.users.cache.get(newTarget).displayName
-                  }\n` +
-                  `🗣️ Your new word: **${watargets[assassin].word}**\n\n`
-              );
-
-            await assassinUser.send({ embeds: [embed] });
-          } catch (error) {
-            console.error(`Failed to DM ${assassin}:`, error);
-          }
-        }
-      }
     }
   }
 });
@@ -465,144 +305,6 @@ client.on("interactionCreate", async (interaction) => {
       );
     }
   }
-
-  if (interaction.commandName == "wordassassin") {
-    if (wordAssassinRunning) {
-      let description = "";
-      if (waplayers.length == 0) {
-        description = "😢 Nobody has joined the game yet.";
-      } else {
-        if (waRoundStarted) {
-          description += `The game is still ongoing!\n\nNote: player statuses are hidden to prevent people from predicting who is hunting them and spoiling the fun.`;
-        } else {
-          for (const i in waplayers) {
-            const id = waplayers[i];
-            const user = await interaction.guild.members.fetch(id);
-            if (alivewaplayers.includes(id)) {
-              description += `🟢 ${user.displayName}`;
-            } else {
-              description += `💀 ${user.displayName}`;
-            }
-            description += "\n";
-          }
-        }
-      }
-      const embed = new EmbedBuilder()
-        .setColor("008000")
-        .setTitle("⚔️ Word Assassin Players")
-        .setDescription(description);
-      await interaction.reply({ embeds: [embed] });
-    } else {
-      wordAssassinRunning = true;
-      // waplayers = [];
-      watargets = {};
-      // alivewaplayers = [];
-      const description =
-        "Welcome to Word Assassin!\n\nIf you haven't already, read the rules below. By default, you are not playing, so **use /joinwa to be included.** After everyone has joined, someone will manually start it.\n\nAfter the game has started, your word will be sent to you through DM. Place top 3 for a reward!";
-      const embed = new EmbedBuilder()
-        .setColor("008000")
-        .setTitle("🔪 Word Assassin")
-        .setDescription(description);
-
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setLabel("View Rules")
-          .setStyle(ButtonStyle.Link)
-          .setURL(
-            "https://docs.google.com/document/d/1g8DD6LseAorGfkHovE-IK4wlZwrmVM64_rSmZNKkRso/edit?usp=sharing"
-          )
-      );
-
-      await interaction.reply({ embeds: [embed], components: [row] });
-    }
-  }
-
-  if (interaction.commandName == "joinwa") {
-    if (!wordAssassinRunning) {
-      interaction.reply(
-        "⛔ A game isn't running, use **/wordassassin** to create one!"
-      );
-      return;
-    }
-
-    if (joinWaGame(interaction.user.id)) {
-      if (waRoundStarted) {
-        interaction.reply("Sorry, the round has already started.");
-        return;
-      }
-      interaction.reply(
-        `✏️ **${interaction.user.displayName}** has joined the word assassin game! (${waplayers.length} people so far)`
-      );
-    } else {
-      interaction.reply("You've already joined the game 😹");
-    }
-  }
-
-  if (interaction.commandName == "startwa") {
-    if (waplayers.length < 2) {
-      interaction.reply("Hmm, we need more players.");
-      return;
-    }
-
-    if (interaction.user.id != "824653557894479972") {
-      interaction.reply("YOU CANNOT START THE GAME!!!!!!!!!!");
-      return;
-    }
-
-    if (waRoundStarted) {
-      interaction.reply("Round's already started!");
-      return;
-    }
-
-    waRoundStarted = true;
-    // Assign targets and words
-    watargets = assignTargetsAndWords(waplayers, alivewaplayers, assassinlist);
-    console.log(`Initial assignments: ${JSON.stringify(watargets, null, 2)}`);
-
-    // DM each player their target and the word they need them to say
-    waplayers.forEach(async (playerId) => {
-      if (watargets[playerId]) {
-        try {
-          const user = await interaction.guild.members.fetch(playerId); // The current player
-          const targetUser = await interaction.guild.members.fetch(
-            watargets[playerId].target
-          ); // Their target
-
-          // Find the word their target must avoid
-          let killWord = null;
-          for (let assassinId in watargets) {
-            if (watargets[assassinId].target === targetUser.id) {
-              killWord = watargets[assassinId].word;
-              break;
-            }
-          }
-
-          const embed = new EmbedBuilder()
-            .setColor("#FF0000")
-            .setTitle("🔪 Word Assassin assignment")
-            .setDescription(
-              `🎯 Your target: ${targetUser.displayName}\n` +
-                `🗣️ Your target's forbidden word: **${killWord}**\n\n` +
-                `💀 Trick them into saying this word to eliminate them`
-            );
-
-          await user.send({ embeds: [embed] });
-        } catch (error) {
-          console.error(`Failed to DM ${playerId}:`, error);
-        }
-      }
-    });
-
-    const embed = new EmbedBuilder()
-      .setColor("#008000") // Green for "game started"
-      .setTitle("💀 Word Assassin start")
-      .setDescription(
-        "The game has started fellas. Check your DMs for your target and kill word.\n\n" +
-          "📝 **/wordassassin** will hide the status of the players to prevent people from finding out who is hunting them."
-      );
-
-    interaction.reply({ embeds: [embed] });
-  }
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -761,11 +463,9 @@ async function givePoints(db, userId, pointsToAdd) {
 
     const newTotal = currentPoints + pointsToAdd;
     await setDoc(userRef, { points: newTotal }, { merge: true });
-
-    // No return needed if you don't need to use newTotal outside this function
   } catch (error) {
     console.error("Error updating points:", error);
-    throw error; // so the caller can still handle it
+    throw error;
   }
 }
 
@@ -780,88 +480,8 @@ async function giveStrokes(db, userId, pointsToAdd) {
 
     const newTotal = currentPoints + pointsToAdd;
     await setDoc(userRef, { strokes: newTotal }, { merge: true });
-
-    // No return needed if you don't need to use newTotal outside this function
   } catch (error) {
     console.error("Error updating strokes:", error);
-    throw error; // so the caller can still handle it
+    throw error;
   }
-}
-
-function joinWaGame(userId) {
-  if (waplayers.includes(userId)) {
-    return false;
-  }
-  waplayers.push(userId);
-  alivewaplayers.push(userId);
-  console.log(waplayers);
-  return true;
-}
-
-function assignTargetsAndWords(waplayers, alivewaplayers, words) {
-  let watargets = {};
-
-  if (alivewaplayers.length < 2) {
-    throw new Error("At least two players are required.");
-  }
-
-  // Shuffle function (Fisher-Yates)
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-
-  shuffle(alivewaplayers);
-  shuffle(words);
-
-  // Ensure we have enough words
-  if (words.length < alivewaplayers.length) {
-    throw new Error("Not enough words for all players.");
-  }
-
-  // Assign targets and words in a circular fashion
-  for (let i = 0; i < alivewaplayers.length; i++) {
-    let player = alivewaplayers[i];
-    let target = alivewaplayers[(i + 1) % alivewaplayers.length]; // Circular assignment
-    let word = words[i];
-
-    watargets[player] = { target, word };
-  }
-
-  return watargets;
-}
-
-// Function to handle when a player is eliminated
-function eliminatePlayer(watargets, deadPlayer) {
-  if (!watargets[deadPlayer]) {
-    console.warn(`Player ${deadPlayer} is not in the game.`);
-    return;
-  }
-
-  let targetOfDead = watargets[deadPlayer].target; // Who the dead player was supposed to eliminate
-  let wordOfDead = watargets[deadPlayer].word; // The forbidden word assigned to the dead player
-  let assassin = null;
-
-  // Find the assassin (who had the dead player as their target)
-  for (let player in watargets) {
-    if (watargets[player].target === deadPlayer) {
-      assassin = player;
-      break;
-    }
-  }
-
-  // If an assassin exists, reassign their target AND word to the dead player's target
-  if (assassin) {
-    watargets[assassin].target = targetOfDead;
-    watargets[assassin].word = wordOfDead;
-  }
-
-  // Remove the dead player from the targets list
-  delete watargets[deadPlayer];
-
-  console.log(
-    `Player ${deadPlayer} has been eliminated. Their target (${targetOfDead}) and word ("${wordOfDead}") are now assigned to ${assassin}.`
-  );
 }
