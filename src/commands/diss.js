@@ -8,7 +8,7 @@ export default async function diss(interaction, client) {
     return interaction.reply("I am undissable.");
   }
 
-  const prompt = `Write a short, over-the-top hate rant for a person named "${tag}". Each time, choose a **wildly different and unexpected style** or literary form (e.g. pirate slang, Shakespearean verse, tech bro rant, emo poetry, haiku, riddle, medieval curse, etc). Be creative and unpredictable.`;
+  const prompt = `Write a few sentences long (brief), over-the-top hate rant for a person named "${tag}". Choose a **wildly different and unexpected style** or literary form (e.g. pirate slang, Shakespearean verse, tech bro rant, emo poetry, haiku, riddle, medieval curse, etc). Be creative and unpredictable.`;
 
   await interaction.deferReply();
   const completion = await openai.chat.completions.create({
