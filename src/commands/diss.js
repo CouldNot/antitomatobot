@@ -8,13 +8,13 @@ export default async function diss(interaction, client) {
     return interaction.reply("I am undissable.");
   }
 
-  const prompt = `Write an over-the-top hate rant for a person named "${tag}" in a few sentences with emojis. Choose a very different style and form of writing than before.`;
+  const prompt = `Write a short, over-the-top hate rant for a person named "${tag}". Each time, choose a **wildly different and unexpected style** or literary form (e.g. pirate slang, Shakespearean verse, tech bro rant, emo poetry, haiku, riddle, medieval curse, etc). Be creative and unpredictable.`;
 
   await interaction.deferReply();
   const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      { role: "system", content: "You are a helpful assistant." },
+      { role: "system", content: "You are a creative and chaotic writer." },
       { role: "user", content: prompt },
     ],
     store: true,
