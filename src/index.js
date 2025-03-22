@@ -13,6 +13,9 @@ import moment from "moment-timezone";
 import db from "./services/firebase.js";
 import openai from "./services/openai.js";
 
+import glaze from "./commands/glaze.js";
+import diss from "./commands/diss.js";
+
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
