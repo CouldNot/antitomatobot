@@ -622,7 +622,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation casually. Note that the messages towards the left (start) are newest, and that messages towards the end of the following text are oldest: \n\n ${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation casually, mimicking the language used. Note that the messages towards the left (start) are newest, and that messages towards the end of the following text are oldest: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
