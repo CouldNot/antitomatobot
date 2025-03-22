@@ -604,6 +604,65 @@ client.on("interactionCreate", async (interaction) => {
     interaction.reply({ embeds: [embed] });
   }
 });
+
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand() || interaction.commandName !== 'recap') return;
+
+  await interaction.deferReply();
+
+  const messages = await interaction.channel.messages.fetch({ limit: 50 });
+
+  // Find the last message from the user
+  let lastUserMessage;
+  messages.forEach(msg => {
+      if (msg.author.id === interaction.user.id && !lastUserMessage) {
+          lastUserMessage = msg;
+
+      }
+  });
+
+  if (!lastUserMessage) {
+      return interaction.editReply("I couldn't find any previous messages from you.");
+
+  }
+
+  // Collect messages after the last one sent by the user
+  const messagesToSummarize = [];
+  messages.forEach(msg => {
+      if (msg.createdTimestamp > lastUserMessage.createdTimestamp) {
+          messagesToSummarize.push(`${msg.author.username}: ${msg.content}`);
+
+      }
+  });
+
+  if (messagesToSummarize.length === 0) {
+      return interaction.editReply("Nothing happened bozo");
+
+  }
+
+  // Format messages for OpenAI
+  const prompt = `Summarize the following fictitious conversation. Filter your responce to the level of the conversation to stay relavent:\n\n${messagesToSummarize.join("\n")}`;
+
+  try {
+      const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+              { role: "system", content: "You are a master summerizer, who writes responces based only on the provided content." },
+              { role: "user", content: prompt }
+
+          ],
+          store: true
+          
+      });
+
+      await interaction.editReply(completion.choices[0].message.content);
+  } catch (error) {
+      console.error("Error calling OpenAI API:", error);
+      await interaction.editReply("An error occurred while generating the summary (tspmo)");
+
+  }
+});
+
 client.login(process.env.TOKEN);
 
 async function fetchAllMessages(minLength, lowerBound, upperBound) {

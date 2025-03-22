@@ -66,6 +66,10 @@ const commands = [
       },
     ],
   },
+  {
+    name: "recap",
+    description: "Recaps everything that happened since your last message."
+  }
 ];
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
