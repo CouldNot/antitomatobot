@@ -8,7 +8,7 @@ export default async function diss(interaction, client) {
     return interaction.reply("I am undissable.");
   }
 
-  const prompt = `Write an over-the-top hate rant for a person named "${tag}" in a few sentences with emojis.`;
+  const prompt = `Write an over-the-top hate rant for a person named "${tag}" in a few sentences with emojis. Choose a very different style and form of writing than before.`;
 
   await interaction.deferReply();
   const completion = await openai.chat.completions.create({

@@ -8,7 +8,7 @@ export default async function glaze(interaction, client) {
     return interaction.reply("I am unglazable.");
   }
 
-  const prompt = `Write over-the-top praise for a person named "${tag}" with emojis in a few sentences.`;
+  const prompt = `Write over-the-top praise for a person named "${tag}" with emojis in a few sentences. Choose a very different style and form of writing than before.`;
 
   await interaction.deferReply();
   const completion = await openai.chat.completions.create({

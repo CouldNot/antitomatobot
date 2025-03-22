@@ -13,8 +13,14 @@ import moment from "moment-timezone";
 import db from "./services/firebase.js";
 import openai from "./services/openai.js";
 
+// import all commands in ../commands/
 import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
+
+const commandHandlers = {
+  glaze,
+  diss,
+};
 
 const client = new Client({
   intents: [
@@ -42,11 +48,6 @@ let gameRunning = false;
 let chosenMessage = "";
 let chosenAuthor = "";
 let chosenDate = "";
-
-const commandHandlers = {
-  glaze,
-  diss,
-};
 
 client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
