@@ -631,7 +631,7 @@ client.on("interactionCreate", async (interaction) => {
   const messagesToSummarize = [];
   messages.forEach((msg) => {
     if (msg.createdTimestamp > lastUserMessage.createdTimestamp) {
-      messagesToSummarize.push(`${msg.author.username}: ${msg.content}`);
+      messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
     }
   });
 
@@ -640,7 +640,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following fictitious conversation. Filter your responce to the level of the conversation to stay relavent:\n\n${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation with a sarcastic, casual tone: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
@@ -651,7 +651,7 @@ client.on("interactionCreate", async (interaction) => {
         {
           role: "system",
           content:
-            "You are a master summerizer, who writes responces based only on the provided content.",
+            "You are a summarizer tool that specializes in dealing with casual, online conversation.",
         },
         { role: "user", content: prompt },
       ],
@@ -662,7 +662,7 @@ client.on("interactionCreate", async (interaction) => {
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
     await interaction.editReply(
-      "An error occurred while generating the summary (tspmo)"
+      "An error occurred while generating the summary (ts pmo)"
     );
   }
 });
