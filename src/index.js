@@ -6,15 +6,12 @@ import {
   Collection,
   MessageFlags,
 } from "discord.js";
-import { OpenAI } from "openai";
+
 import "dotenv/config";
 import cron from "node-cron";
 import moment from "moment-timezone";
 import db from "./services/firebase.js";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_PROJECT_KEY,
-});
+import openai from "./services/openai.js";
 
 const client = new Client({
   intents: [
