@@ -17,10 +17,12 @@ import openai from "./services/openai.js";
 import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
 import leaderboard from "./commands/leaderboard.js";
+import recap from "./commands/recap.js";
 
 const commandHandlers = {
   glaze,
   diss,
+  recap,
 };
 
 const client = new Client({
@@ -174,36 +176,6 @@ client.on("interactionCreate", async (interaction) => {
     return leaderboard(interaction, db);
   }
 
-  // if (interaction.commandName === "leaderboard") {
-  //   sendLeaderboard(
-  //     interaction,
-  //     "points",
-  //     "points",
-  //     "🏆 Points Leaderboard",
-  //     "#FF0000"
-  //   );
-  // }
-
-  // if (interaction.commandName === "gameleaderboard") {
-  //   sendLeaderboard(
-  //     interaction,
-  //     "gamewins",
-  //     "wins",
-  //     "🎲 Game Wins Leaderboard",
-  //     "#0000FF"
-  //   );
-  // }
-
-  // if (interaction.commandName === "strokes") {
-  //   sendLeaderboard(
-  //     interaction,
-  //     "strokes",
-  //     "strokes",
-  //     "💔 Strokes Leaderboard",
-  //     "#FFA500"
-  //   );
-  // }
-
   if (interaction.commandName === "whosent") {
     if (gameRunning) {
       return interaction.reply("U can't start a new game dawg");
@@ -270,55 +242,6 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand() || interaction.commandName !== "recap")
-    return;
-
-  await interaction.deferReply();
-
-  const messages = await interaction.channel.messages.fetch({ limit: 100 });
-  const messagesToSummarize = [];
-
-  messages.forEach((msg) => {
-    if (!msg.author.bot && msg.content.length > 0) {
-      messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
-    }
-  });
-
-  messagesToSummarize.reverse();
-
-  if (messagesToSummarize.length === 0) {
-    return interaction.editReply("An error occurred...");
-  }
-
-  // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation casually, mimicking the language used, and use only the full written name (no nicknames) when referring to people. Use they/them pronouns as you may not know the gender of each user: \n\n ${messagesToSummarize.join(
-    "\n"
-  )}`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a summarizer tool that specializes in dealing with casual, online conversation.",
-        },
-        { role: "user", content: prompt },
-      ],
-      store: true,
-    });
-
-    await interaction.editReply(completion.choices[0].message.content);
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    await interaction.editReply(
-      "An error occurred while generating the summary >:("
-    );
-  }
-});
-
 client.login(process.env.TOKEN);
 
 async function fetchAllMessages(minLength, lowerBound, upperBound) {
@@ -351,66 +274,6 @@ async function fetchAllMessages(minLength, lowerBound, upperBound) {
 
   // Return the messages in the range [lowerBound, upperBound)
   return messages.slice(lowerBound, upperBound);
-}
-
-async function sendLeaderboard(
-  interaction,
-  field,
-  unitLabel,
-  leaderboardTitle,
-  color
-) {
-  try {
-    const usersRef = collection(db, "users");
-    const snapshot = await getDocs(usersRef);
-    const leaderboard = [];
-
-    for (const docSnap of snapshot.docs) {
-      const data = docSnap.data();
-      if (data[field] != null) {
-        let member = interaction.guild.members.cache.get(docSnap.id);
-        if (!member) {
-          try {
-            member = await interaction.guild.members.fetch(docSnap.id);
-          } catch (err) {
-            console.log(`Could not fetch member ${docSnap.id}`, err);
-          }
-        }
-        const displayName = member?.displayName || "Unknown";
-        leaderboard.push({
-          userId: docSnap.id,
-          displayName,
-          value: data[field],
-        });
-      }
-    }
-
-    leaderboard.sort((a, b) => b.value - a.value);
-
-    let description = "";
-    if (leaderboard.length === 0) {
-      description = `⚠️ No users have ${unitLabel} yet.`;
-    } else {
-      leaderboard.forEach((entry, index) => {
-        const prefix = index === 0 ? "👑" : `${index + 1}.`;
-        const cleanName = entry.displayName.trim();
-        let line = `${prefix} ${cleanName}  -  **${entry.value}** ${unitLabel}`;
-        if (entry.userId === interaction.user.id) {
-          line = `${prefix} ➡️ ${cleanName}  -  **${entry.value}** ${unitLabel}`;
-        }
-        description += line + "\n";
-      });
-    }
-    const embed = new EmbedBuilder()
-      .setColor(color)
-      .setTitle(leaderboardTitle)
-      .setDescription(description);
-
-    await interaction.reply({ embeds: [embed] });
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error);
-    interaction.reply("❌ Failed to fetch the leaderboard. Please try again.");
-  }
 }
 
 async function givePoints(db, userId, pointsToAdd) {
