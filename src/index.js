@@ -20,6 +20,7 @@ import recap from "./commands/recap.js";
 
 // import utils in ./utils/
 import fetchAllMessages from "./utils/fetchMessages.js";
+import { givePoints, giveStrokes } from "./utils/points.js";
 
 const commandHandlers = {
   glaze,
@@ -245,37 +246,3 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(process.env.TOKEN);
-
-async function givePoints(db, userId, pointsToAdd) {
-  try {
-    const userRef = doc(db, "users", userId);
-    const docSnap = await getDoc(userRef);
-
-    let currentPoints = docSnap.exists()
-      ? Number(docSnap.data().points ?? 0)
-      : 0;
-
-    const newTotal = currentPoints + pointsToAdd;
-    await setDoc(userRef, { points: newTotal }, { merge: true });
-  } catch (error) {
-    console.error("Error updating points:", error);
-    throw error;
-  }
-}
-
-async function giveStrokes(db, userId, pointsToAdd) {
-  try {
-    const userRef = doc(db, "users", userId);
-    const docSnap = await getDoc(userRef);
-
-    let currentPoints = docSnap.exists()
-      ? Number(docSnap.data().strokes ?? 0)
-      : 0;
-
-    const newTotal = currentPoints + pointsToAdd;
-    await setDoc(userRef, { strokes: newTotal }, { merge: true });
-  } catch (error) {
-    console.error("Error updating strokes:", error);
-    throw error;
-  }
-}
