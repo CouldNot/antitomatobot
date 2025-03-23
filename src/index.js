@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, setDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs } from "firebase/firestore";
 import {
   Client,
   IntentsBitField,
@@ -11,13 +11,15 @@ import "dotenv/config";
 import cron from "node-cron";
 import moment from "moment-timezone";
 import db from "./services/firebase.js";
-import openai from "./services/openai.js";
 
-// import all commands in ../commands/
+// import all commands in ./commands/
 import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
 import leaderboard from "./commands/leaderboard.js";
 import recap from "./commands/recap.js";
+
+// import utils in ./utils/
+import fetchAllMessages from "./utils/fetchMessages.js";
 
 const commandHandlers = {
   glaze,
@@ -182,7 +184,7 @@ client.on("interactionCreate", async (interaction) => {
     }
     gameRunning = true;
     await interaction.deferReply();
-    const messages = await fetchAllMessages(10, 300, 600);
+    const messages = await fetchAllMessages(10, 300, 600); // from ./utils/
     if (messages.length === 0) {
       return interaction.editReply("I couldn't find any valid messages.");
     }
@@ -243,38 +245,6 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(process.env.TOKEN);
-
-async function fetchAllMessages(minLength, lowerBound, upperBound) {
-  const channel = client.channels.cache.get(process.env.WHOSENT_CHANNEL_ID);
-  let messages = [];
-
-  let lastMessage = await channel.messages
-    .fetch({ limit: 1 })
-    .then((messagePage) => (messagePage.size ? messagePage.first() : null));
-
-  // Fetch messages until we have at least upperBound messages (or run out)
-  while (lastMessage && messages.length < upperBound) {
-    const messagePage = await channel.messages.fetch({
-      limit: 100,
-      before: lastMessage.id,
-    });
-
-    messagePage.forEach((msg) => {
-      if (
-        !msg.author.bot &&
-        msg.content.length > minLength &&
-        !msg.mentions.users.some((user) => user.bot)
-      ) {
-        messages.push(msg);
-      }
-    });
-
-    lastMessage = messagePage.size > 0 ? messagePage.last() : null;
-  }
-
-  // Return the messages in the range [lowerBound, upperBound)
-  return messages.slice(lowerBound, upperBound);
-}
 
 async function givePoints(db, userId, pointsToAdd) {
   try {
