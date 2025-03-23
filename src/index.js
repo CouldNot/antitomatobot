@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   Client,
   IntentsBitField,
@@ -21,6 +21,7 @@ import recap from "./commands/recap.js";
 // import utils in ./utils/
 import fetchAllMessages from "./utils/fetchMessages.js";
 import { givePoints, giveStrokes } from "./utils/points.js";
+import { startReminderCron } from "./utils/reminder.js";
 
 const commandHandlers = {
   glaze,
@@ -57,42 +58,8 @@ let chosenDate = "";
 
 client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
-  const startDate = new Date("2025-02-23");
 
-  cron.schedule(
-    "0 22 * * *", // 10 PM
-    async () => {
-      try {
-        const userId = process.env.PRNEETA_CLIENT_ID;
-        const user = await client.users.fetch(userId);
-
-        if (!user) {
-          console.error("Could not find the user to dm");
-          return;
-        }
-
-        // Get the current time in PST
-        const today = moment().tz("America/Los_Angeles").toDate();
-        const diffTime = Math.abs(today - startDate);
-        const dayCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
-
-        await user.send(`Day ${dayCount} of reminding you to journal 🔥`);
-        console.log(
-          `dm sent successfully at ${today.toLocaleString("en-US", {
-            timeZone: "America/Los_Angeles",
-          })}.`
-        );
-      } catch (error) {
-        console.error("failed to send dm:", error);
-      }
-    },
-    {
-      scheduled: true,
-      timezone: "America/Los_Angeles", // Set timezone to PST
-    }
-  );
-
-  console.log("Daily DM schedule set for 10 PM PST.");
+  startReminderCron(client);
 });
 
 client.on("messageCreate", async (msg) => {
