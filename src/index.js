@@ -1,15 +1,6 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import {
-  Client,
-  IntentsBitField,
-  EmbedBuilder,
-  Collection,
-  MessageFlags,
-} from "discord.js";
+import { Client, IntentsBitField, Collection, MessageFlags } from "discord.js";
 
 import "dotenv/config";
-import cron from "node-cron";
-import moment from "moment-timezone";
 import db from "./services/firebase.js";
 
 // import all commands in ./commands/
@@ -17,9 +8,9 @@ import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
 import leaderboard from "./commands/leaderboard.js";
 import recap from "./commands/recap.js";
+import { whosent, guesswhosent } from "./commands/whosent.js";
 
 // import utils in ./utils/
-import fetchAllMessages from "./utils/fetchMessages.js";
 import { givePoints, giveStrokes } from "./utils/points.js";
 import { startReminderCron } from "./utils/reminder.js";
 
@@ -27,6 +18,7 @@ const commandHandlers = {
   glaze,
   diss,
   recap,
+  whosent,
 };
 
 const client = new Client({
@@ -49,12 +41,6 @@ const commandCooldowns = {
   gameleaderboard: 10,
   recap: 20,
 };
-
-// who sent
-let gameRunning = false;
-let chosenMessage = "";
-let chosenAuthor = "";
-let chosenDate = "";
 
 client.on("ready", async (c) => {
   console.log(`✅ ${c.user.tag} is online.`);
@@ -145,70 +131,8 @@ client.on("interactionCreate", async (interaction) => {
   if (["leaderboard", "gameleaderboard", "strokes"].includes(command)) {
     return leaderboard(interaction, db);
   }
-
-  if (interaction.commandName === "whosent") {
-    if (gameRunning) {
-      return interaction.reply("U can't start a new game dawg");
-    }
-    gameRunning = true;
-    await interaction.deferReply();
-    const messages = await fetchAllMessages(client, 10, 300, 600); // from ./utils/
-    if (messages.length === 0) {
-      return interaction.editReply("I couldn't find any valid messages.");
-    }
-    chosenMessage = messages[Math.floor(Math.random() * messages.length)];
-    chosenAuthor = chosenMessage.author;
-    chosenDate = chosenMessage.createdAt;
-    const embed = new EmbedBuilder()
-      .setColor("#FF0000")
-      .setTitle("🤔🎲 Let's play a game!")
-      .setDescription(
-        "Use /guesswhosent to guess who sent this message.\n\n> **" +
-          chosenMessage.content +
-          "**"
-      );
-
-    return interaction.editReply({ embeds: [embed] });
-  }
-
   if (interaction.commandName === "guesswhosent") {
-    if (!gameRunning) {
-      return interaction.reply(
-        "Someone got it already 😱 (or there's no game happening)"
-      );
-    }
-    if (interaction.options.get("user")?.value === chosenAuthor.id) {
-      gameRunning = false;
-      const formattedDate = chosenDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      const userRef = doc(db, "users", interaction.user.id);
-
-      try {
-        const docSnap = await getDoc(userRef);
-        let currentWins = docSnap.exists()
-          ? Number(docSnap.data().gamewins ?? 0)
-          : 0;
-
-        await setDoc(userRef, { gamewins: currentWins + 1 }, { merge: true });
-      } catch (error) {
-        console.error("Error updating game wins:", error);
-      }
-
-      return interaction.reply(
-        `✅ Correct! The message was sent by ${chosenAuthor.displayName}.\n > "${chosenMessage.content}"\n > ${chosenAuthor.displayName}, ${formattedDate}`
-      );
-    } else {
-      let user = interaction.guild.members.cache.get(
-        interaction.options.get("user")?.value
-      );
-      return interaction.reply(
-        `❌ Lol try again, it's not ${user.displayName}.`
-      );
-    }
+    return guesswhosent(interaction, db);
   }
 });
 
