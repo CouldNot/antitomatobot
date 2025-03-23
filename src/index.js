@@ -277,9 +277,7 @@ client.on("interactionCreate", async (interaction) => {
 
   messages.forEach((msg) => {
     if (!msg.author.bot && msg.content.length > 0) {
-      messagesToSummarize.push(
-        `${msg.member?.displayName || msg.author.username}: ${msg.content}`
-      );
+      messagesToSummarize.push(`${msg.author.displayName}: ${msg.content}`);
     }
   });
 
