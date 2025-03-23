@@ -3,7 +3,7 @@ import { Client, IntentsBitField, Collection, MessageFlags } from "discord.js";
 import "dotenv/config";
 import db from "./services/firebase.js";
 
-// import all commands in ./commands/
+// import commands in ./commands/
 import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
 import leaderboard from "./commands/leaderboard.js";
@@ -11,8 +11,10 @@ import recap from "./commands/recap.js";
 import { whosent, guesswhosent } from "./commands/whosent.js";
 
 // import utils in ./utils/
-import { givePoints, giveStrokes } from "./utils/points.js";
 import { startReminderCron } from "./utils/reminder.js";
+
+// import events in ./events/
+import handleMessage from "./events/messageCreate.js";
 
 const commandHandlers = {
   glaze,
@@ -49,52 +51,7 @@ client.on("ready", async (c) => {
 });
 
 client.on("messageCreate", async (msg) => {
-  if (msg.author.bot) return;
-
-  if (msg.author.id === process.env.POINT_CLIENT_ID) {
-    const match = msg.content.match(/^\+(\d+)$/);
-    if (!match) return;
-
-    const repliedUser = msg.mentions.repliedUser;
-    if (!repliedUser) {
-      return msg.reply("⚠️ Please reply to a user to give them points.");
-    }
-    if (repliedUser.id === process.env.CLIENT_ID) return;
-
-    const number = parseInt(match[1], 10);
-
-    try {
-      await givePoints(db, repliedUser.id, number);
-      msg.reply(
-        `🤑 ${repliedUser} has gained ${number} points!\n> *Use /leaderboard to track progress.*`
-      );
-    } catch (error) {
-      msg.reply("❌ Failed to update points. Please try again.");
-    }
-  }
-
-  if (msg.author.id === process.env.IZZ_CLIENT_ID) {
-    const match = msg.content.match(/^\+(\d+)$/);
-
-    if (!match) return;
-
-    const repliedUser = msg.mentions.repliedUser;
-    if (!repliedUser) {
-      return msg.reply("Reply to a user to stroke.");
-    }
-    if (repliedUser.id === process.env.CLIENT_ID) return;
-
-    const number = parseInt(match[1], 10);
-
-    try {
-      await giveStrokes(db, repliedUser.id, number);
-      msg.reply(
-        `💔 ${repliedUser}'s message has been stroked to ${number} times (ts pmo) \n> *Use /strokes to track.*`
-      );
-    } catch (error) {
-      msg.reply("Failed to update. Please try again.");
-    }
-  }
+  await handleMessage(msg, db);
 });
 
 client.on("interactionCreate", async (interaction) => {
