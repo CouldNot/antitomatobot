@@ -288,7 +288,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   // Format messages for OpenAI
-  const prompt = `Summarize the following online conversation casually, mimicking the language used, and use only the full display name (no nicknames) when referring to people: \n\n ${messagesToSummarize.join(
+  const prompt = `Summarize the following online conversation casually, mimicking the language used, and use only the full written name (no nicknames) when referring to people. Use they/them pronouns as you may not know the gender of each user: \n\n ${messagesToSummarize.join(
     "\n"
   )}`;
 
