@@ -16,6 +16,7 @@ import openai from "./services/openai.js";
 // import all commands in ../commands/
 import glaze from "./commands/glaze.js";
 import diss from "./commands/diss.js";
+import leaderboard from "./commands/leaderboard.js";
 
 const commandHandlers = {
   glaze,
@@ -169,36 +170,39 @@ client.on("interactionCreate", async (interaction) => {
   if (commandHandlers[command]) {
     return commandHandlers[command](interaction, client);
   }
-
-  if (interaction.commandName === "leaderboard") {
-    sendLeaderboard(
-      interaction,
-      "points",
-      "points",
-      "🏆 Points Leaderboard",
-      "#FF0000"
-    );
+  if (["leaderboard", "gameleaderboard", "strokes"].includes(command)) {
+    return leaderboard(interaction, db);
   }
 
-  if (interaction.commandName === "gameleaderboard") {
-    sendLeaderboard(
-      interaction,
-      "gamewins",
-      "wins",
-      "🎲 Game Wins Leaderboard",
-      "#0000FF"
-    );
-  }
+  // if (interaction.commandName === "leaderboard") {
+  //   sendLeaderboard(
+  //     interaction,
+  //     "points",
+  //     "points",
+  //     "🏆 Points Leaderboard",
+  //     "#FF0000"
+  //   );
+  // }
 
-  if (interaction.commandName === "strokes") {
-    sendLeaderboard(
-      interaction,
-      "strokes",
-      "strokes",
-      "💔 Strokes Leaderboard",
-      "#FFA500"
-    );
-  }
+  // if (interaction.commandName === "gameleaderboard") {
+  //   sendLeaderboard(
+  //     interaction,
+  //     "gamewins",
+  //     "wins",
+  //     "🎲 Game Wins Leaderboard",
+  //     "#0000FF"
+  //   );
+  // }
+
+  // if (interaction.commandName === "strokes") {
+  //   sendLeaderboard(
+  //     interaction,
+  //     "strokes",
+  //     "strokes",
+  //     "💔 Strokes Leaderboard",
+  //     "#FFA500"
+  //   );
+  // }
 
   if (interaction.commandName === "whosent") {
     if (gameRunning) {
