@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import fetchAllMessages from "../utils/fetchMessages.js";
+import { fetchAllMessages } from "../utils/fetchMessages.js";
 
 let gameRunning = false;
 let chosenMessage = "";
