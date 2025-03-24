@@ -60,7 +60,19 @@ const commands = [
   },
   {
     name: "parrot",
-    description: "Play a game! Guess who the bot imitates (3 pts/win).",
+    description: "Play a game! Guess who the bot imitates (5 pts/win!)",
+  },
+  {
+    name: "guessparrot",
+    description: "Guess who the bot is imitating in the Parrot game.",
+    options: [
+      {
+        name: "user",
+        description: "Chosen user",
+        type: ApplicationCommandOptionType.User,
+        required: true,
+      },
+    ],
   },
 ];
 
