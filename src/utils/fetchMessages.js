@@ -1,4 +1,4 @@
-export default async function fetchAllMessages(
+export async function fetchAllMessages(
   client,
   minLength,
   lowerBound,
@@ -33,7 +33,7 @@ export default async function fetchAllMessages(
   return messages.slice(lowerBound, upperBound);
 }
 
-export default async function fetchMessagesByUser(
+export async function fetchMessagesByUser(
   client,
   userId,
   minLength = 10,
