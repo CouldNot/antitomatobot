@@ -11,8 +11,8 @@ export default async function leaderboard(interaction, db) {
     },
     gameleaderboard: {
       field: "gamewins",
-      label: "wins",
-      title: "🎲 Game Wins Leaderboard",
+      label: "points",
+      title: "🎲 Game Points Leaderboard",
       color: "#0000FF",
     },
     strokes: {

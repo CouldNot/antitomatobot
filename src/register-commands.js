@@ -12,7 +12,7 @@ const commands = [
   },
   {
     name: "gameleaderboard",
-    description: "Shows the game wins leaderboard.",
+    description: "Shows the game points leaderboard.",
   },
   {
     name: "glaze",
@@ -40,7 +40,7 @@ const commands = [
   },
   {
     name: "whosent",
-    description: "Play a game! Guess who sent a random message.",
+    description: "Play a game! Guess who sent a random message (1 pt/win).",
   },
   {
     name: "guesswhosent",
@@ -57,6 +57,10 @@ const commands = [
   {
     name: "recap",
     description: "Recaps what happened recently in the channel.",
+  },
+  {
+    name: "parrot",
+    description: "",
   },
 ];
 
