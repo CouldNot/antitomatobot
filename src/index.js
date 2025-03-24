@@ -9,6 +9,7 @@ import diss from "./commands/diss.js";
 import leaderboard from "./commands/leaderboard.js";
 import recap from "./commands/recap.js";
 import { whosent, guesswhosent } from "./commands/whosent.js";
+import { parrot, guessparrot } from "./commands/parrot.js";
 
 // import utils in ./utils/
 import { startReminderCron } from "./utils/reminder.js";
@@ -22,6 +23,12 @@ const commandHandlers = {
   diss,
   recap,
   whosent,
+  parrot,
+};
+
+const guessGameHandlers = {
+  guesswhosent,
+  guessparrot,
 };
 
 const client = new Client({
@@ -57,11 +64,12 @@ client.on("interactionCreate", async (interaction) => {
   if (commandHandlers[command]) {
     return commandHandlers[command](interaction, client);
   }
+  if (guessGameHandlers[command]) {
+    return guessGameHandlers[command](interaction, db);
+  }
+
   if (["leaderboard", "gameleaderboard", "strokes"].includes(command)) {
     return leaderboard(interaction, db);
-  }
-  if (interaction.commandName === "guesswhosent") {
-    return guesswhosent(interaction, db);
   }
 });
 
