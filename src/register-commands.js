@@ -60,7 +60,7 @@ const commands = [
   },
   {
     name: "parrot",
-    description: "",
+    description: "Play a game! Guess who the bot imitates (3 pts/win).",
   },
 ];
 
