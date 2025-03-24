@@ -58,22 +58,6 @@ const commands = [
     name: "recap",
     description: "Recaps what happened recently in the channel.",
   },
-  {
-    name: "parrot",
-    description: "Play a game! Guess who the bot imitates (5 pts/win!)",
-  },
-  {
-    name: "guessparrot",
-    description: "Guess who the bot is imitating in the Parrot game.",
-    options: [
-      {
-        name: "user",
-        description: "Chosen user",
-        type: ApplicationCommandOptionType.User,
-        required: true,
-      },
-    ],
-  },
 ];
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
